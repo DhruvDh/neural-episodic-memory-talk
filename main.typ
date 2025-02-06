@@ -15,7 +15,9 @@
     short-heading: false
   ),
   // You can add or override more theme settings here, e.g.:
-  config-common(slide-level: 2),
+  config-common(
+    slide-level: 2,
+  ),
   config-colors(
     neutral-darkest: rgb("#000000"),
     neutral-dark: rgb("#202020"),
@@ -26,7 +28,7 @@
   ),
   config-info(
     title: [Neural Episodic Control (NEC)],
-    subtitle: [Pritzel et al. (2017) | https://arxiv.org/abs/1703.01988],
+    subtitle: [#cite(<pritzel2017neuralepisodiccontrol>, form: "full")],
     author: [David Bayha, Dhruv Dhamani, Geet Saurabh Kunumala, Yingjie Ma],
     date: datetime.today(),
     institution: [College of Computing and Informatics \ University of North Carolina at Charlotte],
@@ -49,7 +51,7 @@
   columns: (4fr, 2fr),
   rows: (auto, 60pt),
   gutter: 3pt,
-  [- *Statistic*: In the Atari 2600 set of environments, deep Q-networks required *more than 200 hours* of gameplay in order to achieve scores similar to a human who only played 2 hours. (Bellemare et al., 2013)
+  [- *Statistic*: In the Atari 2600 set of environments, deep Q-networks required *more than 200 hours* of gameplay in order to achieve scores similar to a human who only played 2 hours @Bellemare_2013.
 
   - Imagine a human only needing one example shown to learn something, but an AI needs to see that same example millions of times.
 
@@ -86,8 +88,8 @@ _Why are Deep Reinforcement-Learning agents so slow at learning?_
 
 - Seeks to address three major challenges:
   + *Stochastic Gradient Descent (SGD)* optimization requires using small learning rates – large learning rates cause catastrophic interference (forgetting).
-  + Environments with a *sparse reward signal* make it difficult for a RL agent to learn its environment – there may be very few instances with a non-zero reward.  
-  + Many DRL agents using value-based RL methods (ie. Q-learning) learn one step at a time, resulting in *slow reward signal propagation* – _agent may take hundreds of steps before retrieving useful information_
+  + Environments with a *sparse reward signal* make it difficult for an RL agent to learn its environment – there may be very few instances with a non-zero reward.  
+  + Many DRL agents using value-based RL methods (i.e. Q-learning) learn one step at a time, resulting in *slow reward signal propagation* – _agent may take hundreds of steps before retrieving useful information_
 
 //-------------------------------------
 // Slide 5
@@ -100,51 +102,6 @@ _Why are Deep Reinforcement-Learning agents so slow at learning?_
   - *Robotics*: Robots require fast learning of their environment
   - *Healthcare*: optimize health care decisions and more efficiently personalize healthcare plans
   - *Autonomous vehicles* commonly in high-speed environments
-
-//-------------------------
-// Slide 6
-//-------------------------
-// = Background
-
-// == DQN and Reinforcement Learning
-
-// - Reinforcement Learning is a framework for learning optimal actions through interactions with environment to maximize reward.  
-// - DQN uses Q-learning to learn value function $Q(s_t, a_t)$  
-// - $Q(s_t, a_t)$ takes 2D pixel representation of state st and outputs vector containing value of each action at that state. 
-// - Upon observation, DQN stores $(s_t, a_t, r_t, s_t + 1)$ tuple in replay buffer, which is used for training.
-
-// //-------------------------
-// // Slide 7
-// //-------------------------
-// == Improvements on DQN
-
-// - Double DQN decouples action selection and action evaluation steps to reduce overestimation bias.  
-// - Prioritized Replay further improves on Double DQN by optimizing replay strategy.  
-// - Many papers have suggested that switching to on-policy learning allows agent to learn faster in Atari environments  
-// - AC3 works on policy gradient, which learns a policy and its associated value function.
-
-// //-------------------------
-// // Slide 8
-// //-------------------------
-// == Neural Episodic Control.
-
-// - NEC rapidly latches onto successful strategies as soon as they are experienced, instead of waiting many steps.
-
-// - The Agent has 3 components:
-//   + Convoluted Neural Network -  Processes pixel images.
-//   + Set of memory modes - One per action. 
-//   + Final Network - Convert action memories into $Q(s, a)$ values.
-
-// - For each action, NEC has a memory module with key-value pairs called differentiable neural dictionary (DND)
-
-// //-------------------------
-// // Slide 9
-// //-------------------------
-// == Differentiable Neural Dictionary
-
-// - DND has 2 operations, lookup and write  
-// - The output of lookup is a weighted sum of values in memory, whose weights are given by normalized kernels between lookup key and corresponding key in memory.  
-// - After DND is queried, new key-value pair is written into memory. Writes are append-only.
 
 = Background
 
@@ -177,9 +134,17 @@ _Why are Deep Reinforcement-Learning agents so slow at learning?_
 - *Memory in RL:*
   - Classic tabular RL can update values quickly, but doesn’t scale well to large state spaces.
   - Neural networks scale to high-dimensional inputs, but slow updates hamper data efficiency.
-- *Episodic/MFEC:*
-  - Model-Free Episodic Control (Blundell et al., 2016) shows a memory-based method can drastically speed learning by storing experienced states and their returns.
-- *Key Idea:* A more flexible episodic memory could combine the best of fast local updates (like tabular RL) with generalization from deep learning.
+  - *Non-parametric memory*
+    - Stores discrete experiences for quick local updates,
+    - Bypasses slow gradient steps required by fully parametric models.
+
+#pagebreak()
+
+- *Episodic/MFEC:* 
+  - Model-Free Episodic Control @blundell2016modelfreeepisodiccontrol shows that episodic (non-parametric) storage of state–return pairs drastically speeds up learning.
+  - *Contrast with parametric Q-networks*: parametric networks rely on slow, global weight updates, whereas episodic memory can instantly incorporate new experiences.
+
+- *Key Idea:* A more flexible episodic memory could combine the best of fast local updates (like tabular RL) with the representational power of deep learning.
 
 //-------------------------
 // Slide 10
@@ -225,7 +190,7 @@ $ Q_i <- Q_i + alpha(Q^(N) - Q_i) $
 == Experimental Setup
 
 - 57 *Atari 2600* games (Arcade Learning Environment)
-- Training from *1M to 40M* frams of gameplay
+- Training from *1M to 40M* frames of gameplay
 $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"_"human" - "score"_"random") $
 - Recorded performance at specific checkpoints: *1M, 2M, 4M, 10M, 20M*, and *40M frames*
 - Compared with: *DQN, Double DQN, Prioritized Replay, A3C, MFEC*
@@ -233,15 +198,21 @@ $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"
 
 = Results
 
-== Median Human-Normalized Score
+== Median HNS & Learning Curves
 
 - NEC uses same CNN architecture as DQN for fair comparison
 
 #align(center)[#image("table-2.png", height: 78%)]
+#pagebreak()
 
-#align(center)[#image("figure-4.png")]
 
-#align(center)[#image("figure-8.png")]
+#align(center)[#image("figure-4.png", height: 87%)]
+
+#pagebreak()
+
+#align(center)[#image("figure-4.png", height: 87%)]
+
+#pagebreak()
 
 #grid(columns: 2, [
   #image("fig-pac-man.png", height: 87%)
@@ -287,3 +258,6 @@ $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"
 == Application
 
 == Reflection
+
+=== References
+#bibliography("refs.bib", full: true, title: none, style: ("apa"))
