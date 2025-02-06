@@ -210,7 +210,7 @@ $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"
 
 #pagebreak()
 
-#align(center)[#image("figure-4.png", height: 87%)]
+#align(center)[#image("figure-8.png", height: 87%)]
 
 #pagebreak()
 
@@ -251,13 +251,33 @@ $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"
 
 = Discussion
 
-== Clarification
+== Discussion: Clarification
 
-== Analysis
++ NEC uses a large, append-only memory (DND). How is this different from simpler replay buffers or from LSTM-based memory approaches?
+  - Prompt: _In what way does an external memory (like a dictionary) offer faster updates compared to a replay buffer?_
++ Why does NEC not require reward clipping, unlike DQN and A3C? Anything that Surprised You?
++ The paper cites sparse reward environments as a major challenge. Why does NEC handles sparse rewards more effectively than standard DQN?
 
-== Application
+== Discussion: Analysis
 
-== Reflection
++ From what we’ve seen, what do you think is NEC’s greatest strength? What about its primary limitation?
++ Stability vs Plasticity: Stability can be solved with more data. Can the a highly plastic learning method be "solved"?
++ NEC’s memory is only as good as the state representation (embedding) used as keys. But isn't representation learning data inefficient? NEC claims to improve data efficiency but adds a data inefficient dependency?
++ Thought Experiment: You create a game in your head with hidden rules. You play with ChatGPT, eventually it figures the rules out and starts winning. Is this sample efficient learning or sample inefficient learning?
++ Exploration in Unseen Environments: If the reward is _very sparse_, there's only a handful of episodes to learn from– can NEC help in this case?
 
-=== References
+== Discussion: Application
+
++ Say you are deciding on your Deep Reinforcement Learning Final Project. What kind of project would you use NEC in? What is the specific advantage for your application area?
++ Say you want to apply NEC to a robotics application. The way a robot arm moves is "continuous". Can you use NEC here?
++ Say you want to apply NEC to an environment that changes over time. The rules of the "world" itself change. What happens as NEC's "episodic memory" grows larger and larger?
+
+== Discussion: Reflection
+
++ What aspects of NEC are most relevant to your own research or interests (e.g., memory-based learning, fast adaptation, bridging tabular and deep RL)? How might you adapt the approach in your domain?
++ Which open problems do you see as ripe for further exploration, based on these slides? For example, multi-task learning, partially observable environments, or combining NEC with better exploration strategies?
+
+
+
+*References*
 #bibliography("refs.bib", full: true, title: none, style: ("apa"))
