@@ -104,47 +104,82 @@ _Why are Deep Reinforcement-Learning agents so slow at learning?_
 //-------------------------
 // Slide 6
 //-------------------------
+// = Background
+
+// == DQN and Reinforcement Learning
+
+// - Reinforcement Learning is a framework for learning optimal actions through interactions with environment to maximize reward.  
+// - DQN uses Q-learning to learn value function $Q(s_t, a_t)$  
+// - $Q(s_t, a_t)$ takes 2D pixel representation of state st and outputs vector containing value of each action at that state. 
+// - Upon observation, DQN stores $(s_t, a_t, r_t, s_t + 1)$ tuple in replay buffer, which is used for training.
+
+// //-------------------------
+// // Slide 7
+// //-------------------------
+// == Improvements on DQN
+
+// - Double DQN decouples action selection and action evaluation steps to reduce overestimation bias.  
+// - Prioritized Replay further improves on Double DQN by optimizing replay strategy.  
+// - Many papers have suggested that switching to on-policy learning allows agent to learn faster in Atari environments  
+// - AC3 works on policy gradient, which learns a policy and its associated value function.
+
+// //-------------------------
+// // Slide 8
+// //-------------------------
+// == Neural Episodic Control.
+
+// - NEC rapidly latches onto successful strategies as soon as they are experienced, instead of waiting many steps.
+
+// - The Agent has 3 components:
+//   + Convoluted Neural Network -  Processes pixel images.
+//   + Set of memory modes - One per action. 
+//   + Final Network - Convert action memories into $Q(s, a)$ values.
+
+// - For each action, NEC has a memory module with key-value pairs called differentiable neural dictionary (DND)
+
+// //-------------------------
+// // Slide 9
+// //-------------------------
+// == Differentiable Neural Dictionary
+
+// - DND has 2 operations, lookup and write  
+// - The output of lookup is a weighted sum of values in memory, whose weights are given by normalized kernels between lookup key and corresponding key in memory.  
+// - After DND is queried, new key-value pair is written into memory. Writes are append-only.
+
 = Background
 
-== DQN and Reinforcement Learning
+== Deep Reinforcement Learning Overview
 
-- Reinforcement Learning is a framework for learning optimal actions through interactions with environment to maximize reward.  
-- DQN uses Q-learning to learn value function $Q(s_t, a_t)$  
-- $Q(s_t, a_t)$ takes 2D pixel representation of state st and outputs vector containing value of each action at that state. 
-- Upon observation, DQN stores $(s_t, a_t, r_t, s_t + 1)$ tuple in replay buffer, which is used for training.
+- *Reinforcement Learning*: learning optimal actions through environment interactions to maximize cumulative reward.
+- *Deep RL*: neural networks approximate value or policy functions.
+- *Data Inefficiency*: these methods often require millions of frames before converging to human-level performance.
 
-//-------------------------
-// Slide 7
-//-------------------------
+==  Deep Q-Network Basics
+
+- *Deep Q-Network:*
+  - Learns a value function $Q(s,a)$ via Q-learning.
+  - Takes raw pixels; outputs action values.
+  - Uses experience replay (stores  $(s,a,r,s')$ tuples) and target networks for stable learning.
+
+- *Limitations of DQN*
+  - Very large data requirements (thousands of hours on Atari).
+  - Slow credit assignment (one-step Q-learning).
+
 == Improvements on DQN
 
-- Double DQN decouples action selection and action evaluation steps to reduce overestimation bias.  
-- Prioritized Replay further improves on Double DQN by optimizing replay strategy.  
-- Many papers have suggested that switching to on-policy learning allows agent to learn faster in Atari environments  
-- AC3 works on policy gradient, which learns a policy and its associated value function.
+- *Double DQN:* decouples action selection from action evaluation → reduces Q-value overestimation.
+- *Prioritized Experience Replay*: replays important transitions more frequently → speeds up learning.
+- *On-policy Methods* (e.g., A3C): can help with credit assignment, but also have data demands.
+- *Other Techniques*: $"Retrace"(λ)$, $Q*(λ)$, hierarchical RL, etc. → still not as fast as humans in practice.
 
-//-------------------------
-// Slide 8
-//-------------------------
-== Neural Episodic Control.
+== Motivation for Memory-Based Approaches
 
-- NEC rapidly latches onto successful strategies as soon as they are experienced, instead of waiting many steps.
-
-- The Agent has 3 components:
-  + Convoluted Neural Network -  Processes pixel images.
-  + Set of memory modes - One per action. 
-  + Final Network - Convert action memories into $Q(s, a)$ values.
-
-- For each action, NEC has a memory module with key-value pairs called differentiable neural dictionary (DND)
-
-//-------------------------
-// Slide 9
-//-------------------------
-== Differentiable Neural Dictionary
-
-- DND has 2 operations, lookup and write  
-- The output of lookup is a weighted sum of values in memory, whose weights are given by normalized kernels between lookup key and corresponding key in memory.  
-- After DND is queried, new key-value pair is written into memory. Writes are append-only.
+- *Memory in RL:*
+  - Classic tabular RL can update values quickly, but doesn’t scale well to large state spaces.
+  - Neural networks scale to high-dimensional inputs, but slow updates hamper data efficiency.
+- *Episodic/MFEC:*
+  - Model-Free Episodic Control (Blundell et al., 2016) shows a memory-based method can drastically speed learning by storing experienced states and their returns.
+- *Key Idea:* A more flexible episodic memory could combine the best of fast local updates (like tabular RL) with generalization from deep learning.
 
 //-------------------------
 // Slide 10
@@ -202,6 +237,47 @@ $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"
 
 - NEC uses same CNN architecture as DQN for fair comparison
 
+#align(center)[#image("table-2.png", height: 78%)]
+
+#align(center)[#image("figure-4.png")]
+
+#align(center)[#image("figure-8.png")]
+
+#grid(columns: 2, [
+  #image("fig-pac-man.png", height: 87%)
+  ],
+  [
+  #image("fig-alien.png", height: 87%)
+  ]
+)
+
+== Why does NEC learn faster?
+
+- *Memory-augmented reinforcement learning:*
+  - NEC stores and retrieves past experiences efficiently using a Differentiable Neural Dictionary (DND).
+- *N-step Q-learning for faster reward propagation:*
+  - Unlike traditional Q-learning, NEC combines Monte Carlo estimates with off-policy learning, leading to quicker adaptation.
+- *Avoiding slow updates in deep networks:*
+  - DQN and A3C rely on slow gradient-based learning, while NEC updates stored Q-values instantly.
+
+== Takeaways
+
++ *NEC is ideal for fast adaptation*
+  - Achieves human-level performance 10x faster than DQN and A3C.
+  - Excels in low-data regimes where interactions with the environment are limited.
++ *NEC is memory-efficient*
+  - Uses non-parametric memory retrieval instead of storing everything in a neural network.
+  - This allows rapid learning without extensive retraining.
++ *NEC’s performance advantage fades in long-term training*
+  - While NEC is best in early learning, Prioritized Replay DQN outperforms it after 40M frames.
+  - Future work should combine NEC’s fast learning with DQN’s stability for long-term gains.
+
+== Conclusion
+
+- Neural Episodic Control (NEC) offers a breakthrough in reinforcement learning efficiency.
+- It learns significantly faster than existing methods but requires enhancements for long-term stability.
+- The study highlights the potential of memory-based approaches in AI decision-making.
+
 = Discussion
 
 == Clarification
@@ -211,4 +287,3 @@ $ "Human-Normalized Score (HNS)" = ("score"_"agent" - "score"_"random")/("score"
 == Application
 
 == Reflection
-
